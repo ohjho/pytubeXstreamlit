@@ -1,4 +1,4 @@
-output/
+output/*
 !output/readme.txt
 
 # Byte-compiled / optimized / DLL files
