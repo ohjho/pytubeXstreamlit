@@ -4,6 +4,8 @@ import os, sys, json, warnings, base64
 from pytube import YouTube
 import pandas as pd
 
+from toolbox.st_utils import show_miro_logo
+
 def get_binary_file_downloader_html(bin_file, file_label='File'):
 	'''
 	ref: https://discuss.streamlit.io/t/how-to-download-file-in-streamlit/1806/27
@@ -48,36 +50,39 @@ def parse_yt_streams(yt_streams):
 
 def Main():
 	st.set_page_config(layout = 'centered')
-	st.header('pytubeXstreamlit')
+	show_miro_logo(width = 200, st_asset = st)
+	st.header('pytube X streamlit')
+	default_url = '' #'https://youtube.com/watch?v=2lAe1cqCOXo'
 	vid_url = st.text_input('Enter Youtube Video URL',
-				value = 'https://youtube.com/watch?v=2lAe1cqCOXo')
+				value = default_url)
 
-	yt = YouTube(vid_url)
-	st.subheader(f'{yt.title}\nlength: `{yt.length}` seconds')
-	st.image(yt.thumbnail_url, use_column_width = True)
+	if vid_url:
+		yt = YouTube(vid_url)
+		st.subheader(f'{yt.title}\nlength: `{yt.length}` seconds')
+		st.image(yt.thumbnail_url, use_column_width = True)
 
-	itag = st.empty()
-	dl_button = st.empty()
-	v_streams = yt.streams.filter(progressive = False).order_by("resolution").all()[::-1]
-	v_streams_json = parse_yt_streams(v_streams)
+		itag = st.empty()
+		dl_button = st.empty()
+		v_streams = yt.streams.filter(progressive = False).order_by("resolution").all()[::-1]
+		v_streams_json = parse_yt_streams(v_streams)
 
-	with st.beta_expander('Show Available Streams'):
-		st.markdown('### [Dash](https://python-pytube.readthedocs.io/en/latest/user/quickstart.html#dash-vs-progressive-streams) Streams')
-		st.dataframe(pd.DataFrame(v_streams_json))
+		with st.beta_expander('Show Available Streams'):
+			st.markdown('### [Dash](https://python-pytube.readthedocs.io/en/latest/user/quickstart.html#dash-vs-progressive-streams) Streams')
+			st.dataframe(pd.DataFrame(v_streams_json))
 
-	itag = itag.selectbox('Select itag to Download', options = [s['itag'] for s in v_streams_json])
-	if dl_button.button(f'Download itag: {itag}'):
-		s = yt.streams.get_by_itag(itag)
-		# with st.spinner('Download in progress...'):
-		# 	fp = s.download(skip_existing = True)
-		# st.success(f'{s.default_filename} downloaded')
-		# st.markdown(
-		# 	get_binary_file_downloader_html(fp, 'Video'),
-		# 	unsafe_allow_html = True
-		# )
-		st.markdown(
-			get_dl_link(s, filename_prefix = f'itag{itag}_'), unsafe_allow_html = True
-		)
+		itag = itag.selectbox('Select itag to Download', options = [s['itag'] for s in v_streams_json])
+		if dl_button.button(f'Download itag: {itag}'):
+			s = yt.streams.get_by_itag(itag)
+			# with st.spinner('Download in progress...'):
+			# 	fp = s.download(skip_existing = True)
+			# st.success(f'{s.default_filename} downloaded')
+			# st.markdown(
+			# 	get_binary_file_downloader_html(fp, 'Video'),
+			# 	unsafe_allow_html = True
+			# )
+			st.markdown(
+				get_dl_link(s, filename_prefix = f'itag{itag}_'), unsafe_allow_html = True
+			)
 
 if __name__ == '__main__':
 	Main()
