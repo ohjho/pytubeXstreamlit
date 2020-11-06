@@ -1,4 +1,4 @@
-import os, sys, io, requests, base64
+import os, sys, io, json, requests, base64, pickle, warnings
 import streamlit as st
 import numpy as np
 from PIL import Image
@@ -62,3 +62,28 @@ def get_table_download_link(df, st_asset = st):
 	b64 = base64.b64encode(csv.encode()).decode()  # some strings <-> bytes conversions necessary here
 	href = f'<a href="data:file/csv;base64,{b64}">Download csv file</a>'
 	st_asset.markdown(href, unsafe_allow_html = True)
+
+def get_binary_file_downloader_html(bin_file, file_label='File', bPickle = False):
+	'''
+	ref: https://discuss.streamlit.io/t/how-to-download-file-in-streamlit/1806/27
+	'''
+	with open(bin_file, 'rb') as f:
+		data = f.read()
+	data = pickle.dumps(data) if bPickle else data
+	bin_str = base64.b64encode(data).decode()
+	href = f'<a href="data:application/octet-stream;base64,{bin_str}" download="{os.path.basename(bin_file)}">Download {file_label}</a>'
+	return href
+
+def get_fileio_download_link(fp, bVerbose = False):
+	'''
+	100mb size limit, upload file to file.io and return download url
+	'''
+	if bVerbose:
+		print(f'uploading {fp} to file.io')
+	files = {'file': open(fp, 'rb')}
+	response = requests.post('https://file.io', files = files)
+	if response.status_code == 200:
+		return json.loads(response.text)['link']
+	else:
+		warnings.warn(f'get_fileio_download_link: file.io upload error status code {response.status_code}')
+		return None
