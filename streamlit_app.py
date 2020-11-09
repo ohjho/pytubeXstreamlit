@@ -15,7 +15,7 @@ def get_yt_obj(url):
 
 @st.cache
 def get_dl_link(v_stream, dl_dir = 'output/', filename_prefix = None,
-	bOverwrite = False, use_file_io = True):
+	bOverwrite = False, use_file_io = True, run_locally = False):
 	fp = os.path.join(dl_dir, filename_prefix + v_stream.default_filename)
 	if not os.path.isfile(fp) or bOverwrite:
 		print(f'Downloading {v_stream.default_filename}')
@@ -26,6 +26,8 @@ def get_dl_link(v_stream, dl_dir = 'output/', filename_prefix = None,
 
 	if use_file_io:
 		return get_fileio_download_link(fp, bVerbose = True)
+	elif run_locally:
+		return fp
 	else:
 		return get_binary_file_downloader_html(fp, file_type, bPickle = True)
 
@@ -51,7 +53,12 @@ def parse_yt_streams(yt_streams):
 		"size (mb)": round(byte_size_convert(i.filesize, 'mb'),2)
 		} for i in yt_streams]
 
-def Main(mb_limit = 100):
+def Main(run_locally = False):
+	# setttings for get_dl_link
+	mb_limit = 1000 if run_locally else 100
+	use_file_io = False if run_locally else True
+	output_dir = 'output/' if run_locally else '/tmp/'
+
 	st.set_page_config(layout = 'centered')
 	show_miro_logo(width = 200, st_asset = st)
 	st.header('pytube X streamlit')
@@ -89,10 +96,14 @@ def Main(mb_limit = 100):
 			if st.button(f'Download itag: {itag}'):
 				s = yt.streams.get_by_itag(itag)
 				file_url = get_dl_link(s, filename_prefix = f'itag{itag}_',
-				 			dl_dir = '/tmp/', use_file_io = True)
-				st.markdown(f'[Download Link]({file_url})')
+				 			dl_dir = output_dir, use_file_io = use_file_io, run_locally = run_locally)
+
+				if run_locally:
+					st.success(f'Download to {file_url}')
+				else:
+					st.markdown(f'[Download Link]({file_url})')
 	else:
 		st.warning('please enter a valid YouTube Video URL')
 
 if __name__ == '__main__':
-	Main()
+	Main(run_locally = True)
