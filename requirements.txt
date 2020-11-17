@@ -1,2 +1,2 @@
 streamlit==0.70.0
-pytube==9.7.0
+pytube>=9.7.2
