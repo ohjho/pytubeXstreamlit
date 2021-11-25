@@ -4,6 +4,8 @@ streamlit app to download YouTube Videos using [pytube](https://python-pytube.re
 
 deployed using [streamlit share](https://www.streamlit.io/sharing) to this demo: [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/ohjho/pytubexstreamlit/main)
 
+Download video hosted by [file.io](https://www.file.io/)
+
 ## To run locally
 Clone the `dev` branch by:
 ```
