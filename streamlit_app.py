@@ -28,8 +28,8 @@ def get_dl_link(v_stream, dl_dir = 'output/', filename_prefix = None,
 		return get_fileio_download_link(fp, bVerbose = True)
 	elif run_locally:
 		return fp
-	else:
-		return get_binary_file_downloader_html(fp, file_type, bPickle = True)
+	# else:
+	# 	return get_binary_file_downloader_html(fp, file_type, bPickle = True)
 
 def byte_size_convert(int_bytes, str_unit = 'b'):
 	l_units = ['b', 'kb', 'mb', 'gb']
@@ -72,7 +72,7 @@ def Main(run_locally = False):
 	yt = get_yt_obj(vid_url)
 	if yt:
 		st.subheader(f'{yt.title}\nlength: `{yt.length}` seconds')
-		with st.beta_expander('video thumbnail image'):
+		with st.expander('video thumbnail image'):
 			st.image(yt.thumbnail_url, use_column_width = True)
 
 		user_input_container = st.empty()
@@ -81,11 +81,11 @@ def Main(run_locally = False):
 					yt.streams.filter(progressive = bProgressive).order_by("resolution")[::-1]
 		v_streams_json = parse_yt_streams(v_streams)
 
-		with st.beta_expander(f'Show Available Streams ({len(v_streams)})'):
+		with st.expander(f'Show Available Streams ({len(v_streams)})'):
 			df = pd.DataFrame(v_streams_json)
 			st.dataframe(df)
 
-		with user_input_container.beta_container():
+		with user_input_container.container():
 			itag = st.selectbox('Select itag to Download', options = [s['itag'] for s in v_streams_json])
 			isize = df.set_index('itag').at[itag, 'size (mb)']
 
@@ -99,9 +99,13 @@ def Main(run_locally = False):
 				 			dl_dir = output_dir, use_file_io = use_file_io, run_locally = run_locally)
 
 				if run_locally:
-					st.success(f'Download to {file_url}')
-				else:
-					st.markdown(f'[Download Link]({file_url})')
+					with open(file_url,'rb') as fh:
+						st.download_button(
+							label = 'Download Video',
+							data = fh,
+							file_name = os.path.basename(file_url)
+						)
+					st.success(f'Downloaded to {file_url}')
 	else:
 		st.warning('please enter a valid YouTube Video URL')
 
