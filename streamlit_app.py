@@ -45,7 +45,7 @@ def parse_yt_streams(yt_streams):
 	return [
 		{'itag': i.itag,
 		'res': i.resolution,
-		"fps": i.fps,
+		"fps": i.fps if hasattr(i, 'fps') else None,
 		"bitrate": i.bitrate,
 		"type": i.type,
 		"has_audio": i.includes_audio_track,
@@ -65,9 +65,10 @@ def Main(run_locally = False):
 	default_url = '' #'https://youtube.com/watch?v=2lAe1cqCOXo'
 	vid_url = st.text_input('Enter Youtube Video URL',
 				value = default_url)
-	bProgressive = st.checkbox('progressive streams', value = False)
+	bProgressive = st.checkbox('progressive streams', value = False,
+					help = f'[what streams ?](https://pytube.io/en/latest/user/streams.html#dash-vs-progressive-streams)'
+					)
 	audio_only = st.checkbox('audio only', value = False)
-	st.markdown(f'[what streams ?](https://python-pytube.readthedocs.io/en/latest/user/quickstart.html#dash-vs-progressive-streams)')
 
 	yt = get_yt_obj(vid_url)
 	if yt:
