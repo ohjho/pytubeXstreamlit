@@ -111,4 +111,4 @@ def Main(run_locally = False):
 		st.warning('please enter a valid YouTube Video URL')
 
 if __name__ == '__main__':
-	Main(run_locally = True)
+	Main(run_locally = False)
