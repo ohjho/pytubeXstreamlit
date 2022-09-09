@@ -107,6 +107,9 @@ def Main(run_locally = False):
 							file_name = os.path.basename(file_url)
 						)
 					st.success(f'Downloaded to {file_url}')
+				else:
+					st.markdown(f'[Download Link]({file_url})')
+
 	else:
 		st.warning('please enter a valid YouTube Video URL')
 
